@@ -1,0 +1,184 @@
+<div class="welcome-container">
+  <div class="container-small">
+    <div class="welcome-content">
+      <!-- Header -->
+      <div class="welcome-header text-center mb-xl">
+        <div class="logo-container mb-lg">
+          <div class="logo">
+            <svg
+              width="60"
+              height="60"
+              viewBox="0 0 60 60"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="30"
+                cy="30"
+                r="28"
+                fill="#4A90E2"
+                stroke="#ffffff"
+                stroke-width="4"
+              />
+              <path
+                d="M20 30h20M30 20v20"
+                stroke="white"
+                stroke-width="4"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <h1>Health Symptom Checker</h1>
+        <p class="lead">
+          Get personalized health insights based on your symptoms
+        </p>
+      </div>
+
+      <!-- Disclaimer Card -->
+      <div class="card disclaimer-card mb-xl">
+        <div class="card-header">
+          <h3>Important Notice</h3>
+        </div>
+        <div class="card-body">
+          <div class="disclaimer-content">
+            <div class="disclaimer-icon mb-md">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75A11.96 11.96 0 0012 2.714zM12 15.75h.007v.008H12v-.008z"
+                  stroke="#4A90E2"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div class="disclaimer-text">
+              <p>
+                <strong
+                  >This tool is for informational purposes only and is not a
+                  substitute for professional medical advice, diagnosis, or
+                  treatment.</strong
+                >
+              </p>
+              <ul class="disclaimer-list">
+                <li>
+                  Always seek the advice of a qualified healthcare provider
+                </li>
+                <li>In case of emergency, call 911 immediately</li>
+                <li>
+                  This assessment should not delay seeking professional medical
+                  care
+                </li>
+                <li>Your information is kept private and secure</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div class="trust-indicators mb-xl">
+        <div class="trust-grid">
+          <div class="trust-item">
+            <div class="trust-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  stroke="#6BCF7F"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <h4>Evidence-Based</h4>
+            <p>Built on medical research and clinical guidelines</p>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  stroke="#6BCF7F"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <h4>Secure & Private</h4>
+            <p>Your personal health information is protected</p>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                  stroke="#6BCF7F"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <h4>Quick & Easy</h4>
+            <p>Get insights in just a few simple steps</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call to Action -->
+      <div class="cta-section text-center">
+        <button
+          class="btn btn-primary btn-large"
+          (click)="startAssessment()"
+          type="button"
+          [attr.aria-label]="'Start your symptom assessment'"
+        >
+          <span>Start Your Assessment</span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7.5 15l5-5-5-5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <p class="cta-subtitle mt-md">Takes about 3-5 minutes to complete</p>
+      </div>
+    </div>
+  </div>
+</div>
