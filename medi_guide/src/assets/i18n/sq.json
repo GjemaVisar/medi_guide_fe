@@ -1,3 +1,18 @@
 {
-  "WELCOME": "Miresevini"
+  "HEALTH_SYMPTOM_CHECKER": "Kontrollues i Simptomave Shëndetësore",
+  "GET_HEALTH_INSIGHTS": "Merrni njohuri të personalizuara shëndetësore bazuar në simptomat tuaja",
+  "IMPORTANT_NOTICE": "Njoftim i Rëndësishëm",
+  "INFORMATIONAL_NOTICE": "Ky mjet është vetëm për qëllime informative dhe nuk është zëvendësim për këshilla mjekësore profesionale, diagnozë ose trajtim.",
+  "SEEK_MEDICAL_ADVICE": "Gjithmonë kërkoni këshillën e një ofruesi të kualifikuar të kujdesit shëndetësor",
+  "EMERGENCY_CALL": "Në rast emergjence, telefononi menjëherë 112",
+  "DO_NOT_DELAY_CARE": "Ky vlerësim nuk duhet të vonojë kërkimin e kujdesit mjekësor profesional",
+  "DATA_PRIVACY": "Informacioni juaj mbahet privat dhe i sigurt",
+  "EVIDENCE_BASED": "Bazuar në prova",
+  "EVIDENCE_BASED_DESC": "Ndërtuar mbi kërkime mjekësore dhe udhëzime klinike",
+  "SECURE_AND_PRIVATE": "I Sigurt dhe Privat",
+  "SECURE_AND_PRIVATE_DESC": "Informacioni juaj shëndetësor mbahet i mbrojtur",
+  "QUICK_AND_EASY": "Shpejtë dhe Lehtë",
+  "QUICK_AND_EASY_DESC": "Merrni njohuri në vetëm disa hapa të thjeshtë",
+  "START_ASSESSMENT": "Filloni Vlerësimin Tuaj",
+  "TIME_TO_COMPLETE": "Kërkon rreth 3-5 minuta për t'u përfunduar"
 }

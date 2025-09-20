@@ -46,16 +46,16 @@
             </svg>
           </div>
         </div>
-        <h1>{{ "WELCOME" | translate }}</h1>
+        <h1>{{ "HEALTH_SYMPTOM_CHECKER" | translate }}</h1>
         <p class="lead">
-          Get personalized health insights based on your symptoms
+          {{ "GET_HEALTH_INSIGHTS" | translate }}
         </p>
       </div>
 
       <!-- Disclaimer Card -->
       <div class="card disclaimer-card mb-xl">
         <div class="card-header">
-          <h3>Important Notice</h3>
+          <h3>{{ "IMPORTANT_NOTICE" | translate }}</h3>
         </div>
         <div class="card-body">
           <div class="disclaimer-content">
@@ -78,22 +78,17 @@
             </div>
             <div class="disclaimer-text">
               <p>
-                <strong
-                  >This tool is for informational purposes only and is not a
-                  substitute for professional medical advice, diagnosis, or
-                  treatment.</strong
-                >
+                <strong>{{ "INFORMATIONAL_NOTICE" | translate }}</strong>
               </p>
               <ul class="disclaimer-list">
                 <li>
-                  Always seek the advice of a qualified healthcare provider
+                  {{ "SEEK_MEDICAL_ADVICE" | translate }}
                 </li>
-                <li>In case of emergency, call 911 immediately</li>
+                <li>{{ "EMERGENCY_CALL" | translate }}</li>
                 <li>
-                  This assessment should not delay seeking professional medical
-                  care
+                  {{ "DO_NOT_DELAY_CARE" | translate }}
                 </li>
-                <li>Your information is kept private and secure</li>
+                <li>{{ "DATA_PRIVACY" | translate }}</li>
               </ul>
             </div>
           </div>
@@ -121,8 +116,8 @@
                 />
               </svg>
             </div>
-            <h4>Evidence-Based</h4>
-            <p>Built on medical research and clinical guidelines</p>
+            <h4>{{ "EVIDENCE_BASED" | translate }}</h4>
+            <p>{{ "EVIDENCE_BASED_DESC" | translate }}</p>
           </div>
           <div class="trust-item">
             <div class="trust-icon">
@@ -142,8 +137,8 @@
                 />
               </svg>
             </div>
-            <h4>Secure & Private</h4>
-            <p>Your personal health information is protected</p>
+            <h4>{{ "SECURE_AND_PRIVATE" | translate }}</h4>
+            <p>{{ "SECURE_AND_PRIVATE_DESC" | translate }}</p>
           </div>
           <div class="trust-item">
             <div class="trust-icon">
@@ -163,8 +158,8 @@
                 />
               </svg>
             </div>
-            <h4>Quick & Easy</h4>
-            <p>Get insights in just a few simple steps</p>
+            <h4>{{ "QUICK_AND_EASY" | translate }}</h4>
+            <p>{{ "QUICK_AND_EASY_DESC" | translate }}</p>
           </div>
         </div>
       </div>
@@ -177,7 +172,7 @@
           type="button"
           [attr.aria-label]="'Start your symptom assessment'"
         >
-          <span>Start Your Assessment</span>
+          <span>{{ "START_ASSESSMENT" | translate }}</span>
           <svg
             width="20"
             height="20"
@@ -194,7 +189,7 @@
             />
           </svg>
         </button>
-        <p class="cta-subtitle mt-md">Takes about 3-5 minutes to complete</p>
+        <p class="cta-subtitle mt-md">{{ "TIME_TO_COMPLETE" | translate }}</p>
       </div>
     </div>
   </div>
