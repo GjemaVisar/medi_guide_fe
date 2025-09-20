@@ -1,0 +1,18 @@
+{
+  "HEALTH_SYMPTOM_CHECKER": "Health Symptom Checker",
+  "GET_HEALTH_INSIGHTS": "Get personalized health insights based on your symptoms",
+  "IMPORTANT_NOTICE": "Important Notice",
+  "INFORMATIONAL_NOTICE": "This tool is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.",
+  "SEEK_MEDICAL_ADVICE": "Always seek the advice of a qualified healthcare provider",
+  "EMERGENCY_CALL": "In case of emergency, call 112 immediately",
+  "DO_NOT_DELAY_CARE": "This assessment should not delay seeking professional medical care",
+  "DATA_PRIVACY": "Your information is kept private and secure",
+  "EVIDENCE_BASED": "Evidence-Based",
+  "EVIDENCE_BASED_DESC": "Built on medical research and clinical guidelines",
+  "SECURE_AND_PRIVATE": "Secure and Private",
+  "SECURE_AND_PRIVATE_DESC": "Your personal health information is protected",
+  "QUICK_AND_EASY": "Quick and Easy",
+  "QUICK_AND_EASY_DESC": "Get insights in just a few simple steps",
+  "START_ASSESSMENT": "Start Your Assessment",
+  "TIME_TO_COMPLETE": "Takes about 3-5 minutes to complete"
+}
