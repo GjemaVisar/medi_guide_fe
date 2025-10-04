@@ -5,25 +5,22 @@
       <div class="progress-bar">
         <div class="progress-fill" style="width: 33%"></div>
       </div>
-      <p class="progress-text">Step 1 of 3: Describe your symptoms</p>
+      <p class="progress-text">{{ "STEP_INDICATOR" | translate }}</p>
     </div>
 
     <div class="card">
       <div class="card-header text-center">
-        <h2>What symptoms are you experiencing?</h2>
-        <p>
-          Start typing to search for your symptoms. Use common terms like
-          "headache" or "fever".
-        </p>
+        <h2>{{ "SYMPTOMS_TITLE" | translate }}</h2>
+        <p>{{ "SYMPTOMS_SUBTITLE" | translate }}</p>
       </div>
 
       <div class="card-body">
         <!-- Search Input -->
         <div class="search-container mb-lg">
           <div class="form-group">
-            <label for="symptom-search" class="form-label sr-only"
-              >Search for symptoms</label
-            >
+            <label for="symptom-search" class="form-label sr-only">
+              {{ "SEARCH_LABEL" | translate }}
+            </label>
             <div class="search-input-container">
               <input
                 type="text"
@@ -31,7 +28,7 @@
                 class="form-input search-input"
                 [(ngModel)]="searchQuery"
                 (input)="onSearchInput($event)"
-                placeholder="e.g., headache, fever, stomach pain..."
+                [placeholder]="'SEARCH_PLACEHOLDER' | translate"
                 aria-describedby="search-help"
                 autocomplete="off"
               />
@@ -56,7 +53,7 @@
               </div>
             </div>
             <p id="search-help" class="search-help">
-              Start typing to see suggestions
+              {{ "SEARCH_HELP" | translate }}
             </p>
           </div>
 
@@ -73,7 +70,10 @@
               *ngFor="let symptom of searchResults; trackBy: trackBySymptomId"
               (click)="selectSymptom(symptom)"
               role="option"
-              [attr.aria-label]="'Select ' + symptom.commonName"
+              [attr.aria-label]="
+                'SELECT_SYMPTOM_ARIA'
+                  | translate : { symptomName: symptom.commonName }
+              "
             >
               <div class="symptom-info">
                 <span class="symptom-name">{{ symptom.commonName }}</span>
@@ -109,23 +109,21 @@
                   stroke-linecap="round"
                 />
               </svg>
-              <h4>No symptoms found</h4>
-              <p>
-                Try using different terms or describe your symptom differently.
-              </p>
+              <h4>{{ "NO_RESULTS_TITLE" | translate }}</h4>
+              <p>{{ "NO_RESULTS_BODY" | translate }}</p>
             </div>
           </div>
 
           <!-- Loading -->
           <div class="loading" *ngIf="isSearching">
             <div class="loading-spinner"></div>
-            <p>Searching symptoms...</p>
+            <p>{{ "LOADING_SYMPTOMS" | translate }}</p>
           </div>
         </div>
 
         <!-- Selected Symptoms -->
         <div class="selected-symptoms" *ngIf="selectedSymptoms.length > 0">
-          <h3>Your Symptoms</h3>
+          <h3>{{ "YOUR_SYMPTOMS" | translate }}</h3>
           <div class="symptom-cards">
             <div
               class="symptom-card"
@@ -141,7 +139,9 @@
                   class="remove-symptom-btn"
                   (click)="removeSymptom(symptomInput)"
                   [attr.aria-label]="
-                    'Remove ' + symptomInput.symptom.commonName
+                    'REMOVE_SYMPTOM_ARIA'
+                      | translate
+                        : { symptomName: symptomInput.symptom.commonName }
                   "
                 >
                   <!-- X icon -->
@@ -162,16 +162,23 @@
                   <label
                     [for]="'severity-' + symptomInput.symptom.id"
                     class="detail-label"
-                    >Severity</label
                   >
+                    {{ "SEVERITY_LABEL" | translate }}
+                  </label>
                   <select
                     [id]="'severity-' + symptomInput.symptom.id"
                     class="detail-select"
                     [(ngModel)]="symptomInput.severity"
                   >
-                    <option value="mild">Mild</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="severe">Severe</option>
+                    <option value="mild">
+                      {{ "SEVERITY_MILD" | translate }}
+                    </option>
+                    <option value="moderate">
+                      {{ "SEVERITY_MODERATE" | translate }}
+                    </option>
+                    <option value="severe">
+                      {{ "SEVERITY_SEVERE" | translate }}
+                    </option>
                   </select>
                 </div>
 
@@ -180,19 +187,32 @@
                   <label
                     [for]="'duration-' + symptomInput.symptom.id"
                     class="detail-label"
-                    >Duration</label
                   >
+                    {{ "DURATION_LABEL" | translate }}
+                  </label>
                   <select
                     [id]="'duration-' + symptomInput.symptom.id"
                     class="detail-select"
                     [(ngModel)]="symptomInput.duration"
                   >
-                    <option value="less-than-hour">Less than 1 hour</option>
-                    <option value="few-hours">A few hours</option>
-                    <option value="1-day">About 1 day</option>
-                    <option value="few-days">A few days</option>
-                    <option value="1-week">About 1 week</option>
-                    <option value="more-than-week">More than 1 week</option>
+                    <option value="less-than-hour">
+                      {{ "DURATION_LESS_HOUR" | translate }}
+                    </option>
+                    <option value="few-hours">
+                      {{ "DURATION_FEW_HOURS" | translate }}
+                    </option>
+                    <option value="1-day">
+                      {{ "DURATION_ONE_DAY" | translate }}
+                    </option>
+                    <option value="few-days">
+                      {{ "DURATION_FEW_DAYS" | translate }}
+                    </option>
+                    <option value="1-week">
+                      {{ "DURATION_ONE_WEEK" | translate }}
+                    </option>
+                    <option value="more-than-week">
+                      {{ "DURATION_MORE_WEEK" | translate }}
+                    </option>
                   </select>
                 </div>
 
@@ -201,17 +221,26 @@
                   <label
                     [for]="'frequency-' + symptomInput.symptom.id"
                     class="detail-label"
-                    >How often?</label
                   >
+                    {{ "FREQUENCY_LABEL" | translate }}
+                  </label>
                   <select
                     [id]="'frequency-' + symptomInput.symptom.id"
                     class="detail-select"
                     [(ngModel)]="symptomInput.frequency"
                   >
-                    <option value="constant">Constant</option>
-                    <option value="frequent">Frequent</option>
-                    <option value="occasional">Occasional</option>
-                    <option value="rare">Rare</option>
+                    <option value="constant">
+                      {{ "FREQUENCY_CONSTANT" | translate }}
+                    </option>
+                    <option value="frequent">
+                      {{ "FREQUENCY_FREQUENT" | translate }}
+                    </option>
+                    <option value="occasional">
+                      {{ "FREQUENCY_OCCASIONAL" | translate }}
+                    </option>
+                    <option value="rare">
+                      {{ "FREQUENCY_RARE" | translate }}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -224,7 +253,7 @@
       <div class="card-footer" *ngIf="selectedSymptoms.length > 0">
         <div class="footer-actions">
           <button type="button" class="btn btn-secondary" (click)="goBack()">
-            Back
+            {{ "BUTTON_BACK" | translate }}
           </button>
           <button
             type="button"
@@ -232,7 +261,7 @@
             (click)="continueToQuestions()"
             [disabled]="selectedSymptoms.length === 0"
           >
-            <span>Continue</span>
+            <span>{{ "BUTTON_CONTINUE" | translate }}</span>
           </button>
         </div>
       </div>

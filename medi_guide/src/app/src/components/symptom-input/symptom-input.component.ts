@@ -11,11 +11,12 @@ import {
 } from 'rxjs';
 import { SymptomService } from '../../../services/symptom.service';
 import { Symptom, SymptomInput } from '../../../models/symptom.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-symptom-input',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './symptom-input.component.html',
   styleUrls: ['./symptom-input.component.scss'],
 })
