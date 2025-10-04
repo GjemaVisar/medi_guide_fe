@@ -8,6 +8,8 @@ import { LandingPageComponent } from './src/components/landing_page/landing-page
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { SymptomInputComponent } from './src/components/symptom-input/symptom-input.component';
+import { FormsModule } from '@angular/forms';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -20,6 +22,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppRoutingModule,
     HttpClientModule,
     LandingPageComponent,
+    SymptomInputComponent,
+    FormsModule,
     TranslateModule.forRoot({
       defaultLanguage: 'sq',
       loader: {

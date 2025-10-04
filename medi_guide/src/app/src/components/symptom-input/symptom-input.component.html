@@ -1,0 +1,241 @@
+<div class="symptom-input-container">
+  <div class="container-small">
+    <!-- Progress Indicator -->
+    <div class="progress-container mb-xl">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 33%"></div>
+      </div>
+      <p class="progress-text">Step 1 of 3: Describe your symptoms</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header text-center">
+        <h2>What symptoms are you experiencing?</h2>
+        <p>
+          Start typing to search for your symptoms. Use common terms like
+          "headache" or "fever".
+        </p>
+      </div>
+
+      <div class="card-body">
+        <!-- Search Input -->
+        <div class="search-container mb-lg">
+          <div class="form-group">
+            <label for="symptom-search" class="form-label sr-only"
+              >Search for symptoms</label
+            >
+            <div class="search-input-container">
+              <input
+                type="text"
+                id="symptom-search"
+                class="form-input search-input"
+                [(ngModel)]="searchQuery"
+                (input)="onSearchInput($event)"
+                placeholder="e.g., headache, fever, stomach pain..."
+                aria-describedby="search-help"
+                autocomplete="off"
+              />
+              <div class="search-icon">
+                <!-- magnifier SVG -->
+                <svg width="20" height="20" viewBox="0 0 20 20">
+                  <circle
+                    cx="9"
+                    cy="9"
+                    r="7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                  <path
+                    d="m16 16 4.35 4.35"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+            <p id="search-help" class="search-help">
+              Start typing to see suggestions
+            </p>
+          </div>
+
+          <!-- Search Results -->
+          <div
+            class="search-results"
+            *ngIf="searchResults.length > 0 && showResults"
+            role="listbox"
+            aria-label="Symptom suggestions"
+          >
+            <button
+              type="button"
+              class="search-result-item"
+              *ngFor="let symptom of searchResults; trackBy: trackBySymptomId"
+              (click)="selectSymptom(symptom)"
+              role="option"
+              [attr.aria-label]="'Select ' + symptom.commonName"
+            >
+              <div class="symptom-info">
+                <span class="symptom-name">{{ symptom.commonName }}</span>
+                <span class="symptom-category">{{ symptom.category }}</span>
+              </div>
+              <div
+                class="severity-indicator"
+                [class]="'status-' + symptom.severity"
+              >
+                {{ symptom.severity }}
+              </div>
+            </button>
+          </div>
+
+          <!-- No Results -->
+          <div
+            class="no-results"
+            *ngIf="searchQuery && searchResults.length === 0 && !isSearching"
+          >
+            <div class="no-results-content">
+              <svg width="48" height="48" viewBox="0 0 48 48">
+                <circle
+                  cx="24"
+                  cy="24"
+                  r="22"
+                  stroke="#E1E8ED"
+                  stroke-width="4"
+                />
+                <path
+                  d="M16 24h16M24 16v16"
+                  stroke="#E1E8ED"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <h4>No symptoms found</h4>
+              <p>
+                Try using different terms or describe your symptom differently.
+              </p>
+            </div>
+          </div>
+
+          <!-- Loading -->
+          <div class="loading" *ngIf="isSearching">
+            <div class="loading-spinner"></div>
+            <p>Searching symptoms...</p>
+          </div>
+        </div>
+
+        <!-- Selected Symptoms -->
+        <div class="selected-symptoms" *ngIf="selectedSymptoms.length > 0">
+          <h3>Your Symptoms</h3>
+          <div class="symptom-cards">
+            <div
+              class="symptom-card"
+              *ngFor="
+                let symptomInput of selectedSymptoms;
+                trackBy: trackBySymptomInputId
+              "
+            >
+              <div class="symptom-card-header">
+                <h4>{{ symptomInput.symptom.commonName }}</h4>
+                <button
+                  type="button"
+                  class="remove-symptom-btn"
+                  (click)="removeSymptom(symptomInput)"
+                  [attr.aria-label]="
+                    'Remove ' + symptomInput.symptom.commonName
+                  "
+                >
+                  <!-- X icon -->
+                  <svg width="16" height="16" viewBox="0 0 16 16">
+                    <path
+                      d="M12 4L4 12M4 4l8 8"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="symptom-details">
+                <!-- Severity -->
+                <div class="detail-group">
+                  <label
+                    [for]="'severity-' + symptomInput.symptom.id"
+                    class="detail-label"
+                    >Severity</label
+                  >
+                  <select
+                    [id]="'severity-' + symptomInput.symptom.id"
+                    class="detail-select"
+                    [(ngModel)]="symptomInput.severity"
+                  >
+                    <option value="mild">Mild</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="severe">Severe</option>
+                  </select>
+                </div>
+
+                <!-- Duration -->
+                <div class="detail-group">
+                  <label
+                    [for]="'duration-' + symptomInput.symptom.id"
+                    class="detail-label"
+                    >Duration</label
+                  >
+                  <select
+                    [id]="'duration-' + symptomInput.symptom.id"
+                    class="detail-select"
+                    [(ngModel)]="symptomInput.duration"
+                  >
+                    <option value="less-than-hour">Less than 1 hour</option>
+                    <option value="few-hours">A few hours</option>
+                    <option value="1-day">About 1 day</option>
+                    <option value="few-days">A few days</option>
+                    <option value="1-week">About 1 week</option>
+                    <option value="more-than-week">More than 1 week</option>
+                  </select>
+                </div>
+
+                <!-- Frequency -->
+                <div class="detail-group">
+                  <label
+                    [for]="'frequency-' + symptomInput.symptom.id"
+                    class="detail-label"
+                    >How often?</label
+                  >
+                  <select
+                    [id]="'frequency-' + symptomInput.symptom.id"
+                    class="detail-select"
+                    [(ngModel)]="symptomInput.frequency"
+                  >
+                    <option value="constant">Constant</option>
+                    <option value="frequent">Frequent</option>
+                    <option value="occasional">Occasional</option>
+                    <option value="rare">Rare</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer" *ngIf="selectedSymptoms.length > 0">
+        <div class="footer-actions">
+          <button type="button" class="btn btn-secondary" (click)="goBack()">
+            Back
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="continueToQuestions()"
+            [disabled]="selectedSymptoms.length === 0"
+          >
+            <span>Continue</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

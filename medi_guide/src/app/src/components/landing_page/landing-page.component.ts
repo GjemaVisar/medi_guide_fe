@@ -20,7 +20,7 @@ export class LandingPageComponent {
   }
 
   startAssessment() {
-    this.router.navigate(['/assessment']);
+    this.router.navigate(['symptom-input']);
   }
 
   switchLang(lang: string) {
