@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of, BehaviorSubject } from 'rxjs';
-import { map, delay } from 'rxjs/operators';
+import { map, delay, catchError } from 'rxjs/operators';
 import {
   Symptom,
   Question,
@@ -9,6 +10,7 @@ import {
   SymptomInput,
   Answer,
 } from '../models/symptom.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -25,73 +27,10 @@ export class SymptomService {
     },
   });
 
-  // Mock symptom data
-  private symptoms: Symptom[] = [
-    {
-      id: '1',
-      name: 'cephalgia',
-      commonName: 'headache',
-      category: 'neurological',
-      severity: 'low',
-      description: 'Pain in the head or upper neck',
-    },
-    {
-      id: '2',
-      name: 'pyrexia',
-      commonName: 'fever',
-      category: 'systemic',
-      severity: 'moderate',
-      description: 'Elevated body temperature',
-    },
-    {
-      id: '3',
-      name: 'dyspnea',
-      commonName: 'difficulty breathing',
-      category: 'respiratory',
-      severity: 'high',
-      description: 'Shortness of breath or labored breathing',
-    },
-    {
-      id: '4',
-      name: 'thoracic pain',
-      commonName: 'chest pain',
-      category: 'cardiovascular',
-      severity: 'high',
-      description: 'Pain or discomfort in the chest area',
-    },
-    {
-      id: '5',
-      name: 'abdominal pain',
-      commonName: 'stomach pain',
-      category: 'gastrointestinal',
-      severity: 'moderate',
-      description: 'Pain in the abdominal region',
-    },
-    {
-      id: '6',
-      name: 'vertigo',
-      commonName: 'dizziness',
-      category: 'neurological',
-      severity: 'low',
-      description: 'Feeling of spinning or loss of balance',
-    },
-    {
-      id: '7',
-      name: 'myalgia',
-      commonName: 'muscle pain',
-      category: 'musculoskeletal',
-      severity: 'low',
-      description: 'Pain in muscle tissue',
-    },
-    {
-      id: '8',
-      name: 'emesis',
-      commonName: 'vomiting',
-      category: 'gastrointestinal',
-      severity: 'moderate',
-      description: 'Forceful expulsion of stomach contents',
-    },
-  ];
+  private symptomsCache: Symptom[] = [];
+  private symptomsLoaded = false;
+
+  constructor(private http: HttpClient) {}
 
   // Mock questions based on symptoms
   private questions: Question[] = [
@@ -186,14 +125,119 @@ export class SymptomService {
     },
   ];
 
-  searchSymptoms(query: string): Observable<Symptom[]> {
-    const filteredSymptoms = this.symptoms.filter(
-      (symptom) =>
-        symptom.commonName.toLowerCase().includes(query.toLowerCase()) ||
-        symptom.name.toLowerCase().includes(query.toLowerCase())
+  /**
+   * Fetches all diseases from the API and converts them to Symptom objects
+   */
+  private fetchSymptoms(): Observable<Symptom[]> {
+    return this.http.get<string[]>(`${environment.apiBaseUrl}/diseases`).pipe(
+      map((diseaseNames) => {
+        // Map string array to Symptom objects
+        const symptoms = diseaseNames.map((diseaseName, index) => 
+          this.mapDiseaseNameToSymptom(diseaseName, index)
+        );
+        this.symptomsCache = symptoms;
+        this.symptomsLoaded = true;
+        return symptoms;
+      }),
+      catchError((error) => {
+        console.error('Error fetching diseases from API:', error);
+        // Return empty array on error
+        return of([]);
+      })
     );
+  }
 
-    return of(filteredSymptoms).pipe(delay(300));
+  /**
+   * Maps a disease name string to a Symptom object
+   */
+  private mapDiseaseNameToSymptom(diseaseName: string, index: number): Symptom {
+    // Generate a simple ID from the disease name (using hash or index)
+    const id = this.generateIdFromName(diseaseName, index);
+    
+    // Infer category from disease name (basic categorization)
+    const category = this.inferCategory(diseaseName);
+    
+    return {
+      id,
+      name: diseaseName.toLowerCase().replace(/\s+/g, '-'), // Convert to slug format
+      commonName: diseaseName, // Use the disease name as common name
+      category,
+      severity: 'low' as const, // Default severity since API doesn't provide it
+      description: undefined, // No description available from API
+    };
+  }
+
+  /**
+   * Generates a unique ID from disease name
+   */
+  private generateIdFromName(name: string, index: number): string {
+    // Simple hash function to generate ID
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      const char = name.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString();
+  }
+
+  /**
+   * Infers category from disease name (basic keyword matching)
+   */
+  private inferCategory(diseaseName: string): string {
+    const lowerName = diseaseName.toLowerCase();
+    
+    if (lowerName.includes('cardiac') || lowerName.includes('heart') || lowerName.includes('aortic') || lowerName.includes('myocardial')) {
+      return 'cardiovascular';
+    }
+    if (lowerName.includes('respiratory') || lowerName.includes('bronch') || lowerName.includes('lung') || lowerName.includes('pneumonia')) {
+      return 'respiratory';
+    }
+    if (lowerName.includes('abdominal') || lowerName.includes('stomach') || lowerName.includes('gastric') || lowerName.includes('intestinal')) {
+      return 'gastrointestinal';
+    }
+    if (lowerName.includes('neurological') || lowerName.includes('brain') || lowerName.includes('headache') || lowerName.includes('migraine')) {
+      return 'neurological';
+    }
+    if (lowerName.includes('muscle') || lowerName.includes('bone') || lowerName.includes('joint') || lowerName.includes('skeletal')) {
+      return 'musculoskeletal';
+    }
+    if (lowerName.includes('skin') || lowerName.includes('dermat') || lowerName.includes('keratosis') || lowerName.includes('acne')) {
+      return 'dermatological';
+    }
+    
+    return 'general'; // Default category
+  }
+
+  /**
+   * Searches symptoms by query string
+   * Fetches from API if not already loaded, then filters locally
+   */
+  searchSymptoms(query: string): Observable<Symptom[]> {
+    if (!this.symptomsLoaded) {
+      return this.fetchSymptoms().pipe(
+        map((symptoms) => this.filterSymptoms(symptoms, query))
+      );
+    }
+
+    return of(this.filterSymptoms(this.symptomsCache, query)).pipe(delay(100));
+  }
+
+  /**
+   * Filters symptoms based on search query
+   */
+  private filterSymptoms(symptoms: Symptom[], query: string): Symptom[] {
+    if (!query || query.length < 2) {
+      return [];
+    }
+
+    const lowerQuery = query.toLowerCase();
+    return symptoms.filter(
+      (symptom) =>
+        symptom.commonName?.toLowerCase().includes(lowerQuery) ||
+        symptom.name?.toLowerCase().includes(lowerQuery) ||
+        symptom.description?.toLowerCase().includes(lowerQuery)
+    );
   }
 
   getQuestions(symptoms: SymptomInput[]): Observable<Question[]> {
