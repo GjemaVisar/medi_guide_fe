@@ -12,6 +12,7 @@ import { SymptomInputComponent } from './src/components/symptom-input/symptom-in
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from './src/components/header/header.component';
 import { QuestionsComponent } from './src/components/questions/questions.component';
+import { ResultsComponent } from './src/components/results/results.component';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -27,6 +28,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     SymptomInputComponent,
     HeaderComponent,
     QuestionsComponent,
+    ResultsComponent,
     FormsModule,
     TranslateModule.forRoot({
       defaultLanguage: 'sq',
