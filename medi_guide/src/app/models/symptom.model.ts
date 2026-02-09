@@ -5,14 +5,11 @@ export interface Symptom {
   category: string;
   severity: 'low' | 'moderate' | 'high';
   description?: string;
+  translationKey?: string;
 }
 
 export interface SymptomInput {
   symptom: Symptom;
-  severity: 'mild' | 'moderate' | 'severe';
-  duration: string;
-  frequency: string;
-  additionalInfo?: string;
 }
 
 export interface Question {

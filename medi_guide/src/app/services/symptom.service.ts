@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, BehaviorSubject } from 'rxjs';
-import { map, delay, catchError } from 'rxjs/operators';
+import { Observable, of, BehaviorSubject, forkJoin } from 'rxjs';
+import { map, delay, catchError, tap } from 'rxjs/operators';
 import {
   Symptom,
-  Question,
   Condition,
   Assessment,
   SymptomInput,
@@ -29,49 +28,10 @@ export class SymptomService {
 
   private symptomsCache: Symptom[] = [];
   private symptomsLoaded = false;
+  private translationsCache: { en: any; sq: any } = { en: {}, sq: {} };
+  private translationsLoaded = false;
 
   constructor(private http: HttpClient) {}
-
-  // Mock questions based on symptoms
-  private questions: Question[] = [
-    {
-      id: 'duration',
-      text: 'How long have you been experiencing this symptom?',
-      type: 'multiple-choice',
-      options: [
-        'Less than 1 day',
-        '1-3 days',
-        '4-7 days',
-        'More than 1 week',
-        'More than 1 month',
-      ],
-      required: true,
-    },
-    {
-      id: 'severity',
-      text: 'How would you rate the severity of your symptom?',
-      type: 'scale',
-      required: true,
-    },
-    {
-      id: 'associated_symptoms',
-      text: 'Are you experiencing any other symptoms?',
-      type: 'yes-no',
-      required: true,
-    },
-    {
-      id: 'medications',
-      text: 'Are you currently taking any medications?',
-      type: 'yes-no',
-      required: true,
-    },
-    {
-      id: 'medical_history',
-      text: 'Do you have any chronic health conditions?',
-      type: 'yes-no',
-      required: false,
-    },
-  ];
 
   // Mock conditions
   private conditions: Condition[] = [
@@ -126,9 +86,92 @@ export class SymptomService {
   ];
 
   /**
+   * Loads symptoms and translations immediately when assessment starts
+   */
+  loadSymptoms(): Observable<Symptom[]> {
+    if (this.symptomsLoaded && this.translationsLoaded) {
+      return of(this.symptomsCache);
+    }
+
+    // Load both symptoms and translations in parallel
+    const symptoms$ = this.fetchSymptoms().pipe(
+      catchError(() => of([] as Symptom[]))
+    );
+    const translations$ = this.loadTranslations().pipe(
+      catchError(() => of(void 0))
+    );
+
+    return forkJoin([symptoms$, translations$]).pipe(
+      map(([symptoms]) => {
+        // Update symptoms with translation keys for searching
+        const symptomsWithKeys = symptoms.map(symptom => ({
+          ...symptom,
+          translationKey: this.diseaseNameToTranslationKey(symptom.commonName)
+        }));
+        this.symptomsCache = symptomsWithKeys;
+        return symptomsWithKeys;
+      })
+    );
+  }
+
+  /**
+   * Loads translation files for searching
+   */
+  private loadTranslations(): Observable<void> {
+    if (this.translationsLoaded) {
+      return of(void 0);
+    }
+
+    const en$ = this.http.get<any>('./assets/i18n/en.json').pipe(
+      catchError((err) => {
+        console.error('Error loading English translations:', err);
+        return of({});
+      })
+    );
+    const sq$ = this.http.get<any>('./assets/i18n/sq.json').pipe(
+      catchError((err) => {
+        console.error('Error loading Albanian translations:', err);
+        return of({});
+      })
+    );
+
+    return forkJoin([en$, sq$]).pipe(
+      tap(([enTranslations, sqTranslations]) => {
+        this.translationsCache.en = enTranslations;
+        this.translationsCache.sq = sqTranslations;
+        this.translationsLoaded = true;
+      }),
+      map(() => void 0)
+    );
+  }
+
+  /**
+   * Converts disease name to translation key format
+   * e.g., "abdominal aortic aneurysm" -> "ABDOMINAL_AORTIC_ANEURYSM"
+   */
+  getTranslationKey(diseaseName: string): string {
+    return diseaseName.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '');
+  }
+
+  /**
+   * Gets the translations cache for use in components
+   */
+  getTranslations(): { en: any; sq: any } {
+    return this.translationsCache;
+  }
+
+  private diseaseNameToTranslationKey(diseaseName: string): string {
+    return this.getTranslationKey(diseaseName);
+  }
+
+  /**
    * Fetches all diseases from the API and converts them to Symptom objects
    */
   private fetchSymptoms(): Observable<Symptom[]> {
+    if (this.symptomsLoaded) {
+      return of(this.symptomsCache);
+    }
+
     return this.http.get<string[]>(`${environment.apiBaseUrl}/diseases`).pipe(
       map((diseaseNames) => {
         // Map string array to Symptom objects
@@ -211,11 +254,12 @@ export class SymptomService {
 
   /**
    * Searches symptoms by query string
-   * Fetches from API if not already loaded, then filters locally
+   * Uses cached symptoms if already loaded
    */
   searchSymptoms(query: string): Observable<Symptom[]> {
-    if (!this.symptomsLoaded) {
-      return this.fetchSymptoms().pipe(
+    if (!this.symptomsLoaded || !this.translationsLoaded) {
+      // If not loaded, load first then search
+      return this.loadSymptoms().pipe(
         map((symptoms) => this.filterSymptoms(symptoms, query))
       );
     }
@@ -225,6 +269,7 @@ export class SymptomService {
 
   /**
    * Filters symptoms based on search query
+   * Also searches in translation files (English and Albanian)
    */
   private filterSymptoms(symptoms: Symptom[], query: string): Symptom[] {
     if (!query || query.length < 2) {
@@ -232,17 +277,34 @@ export class SymptomService {
     }
 
     const lowerQuery = query.toLowerCase();
-    return symptoms.filter(
-      (symptom) =>
+    
+    return symptoms.filter((symptom) => {
+      // Search in original disease name
+      if (
         symptom.commonName?.toLowerCase().includes(lowerQuery) ||
         symptom.name?.toLowerCase().includes(lowerQuery) ||
         symptom.description?.toLowerCase().includes(lowerQuery)
-    );
-  }
+      ) {
+        return true;
+      }
 
-  getQuestions(symptoms: SymptomInput[]): Observable<Question[]> {
-    // In a real app, questions would be dynamically generated based on symptoms
-    return of(this.questions).pipe(delay(200));
+      // Search in translation files using stored translation key or generate it
+      const translationKey = symptom.translationKey || this.diseaseNameToTranslationKey(symptom.commonName);
+      
+      // Search in English translations
+      const enTranslation = this.translationsCache.en[translationKey];
+      if (enTranslation && typeof enTranslation === 'string' && enTranslation.toLowerCase().includes(lowerQuery)) {
+        return true;
+      }
+
+      // Search in Albanian translations
+      const sqTranslation = this.translationsCache.sq[translationKey];
+      if (sqTranslation && typeof sqTranslation === 'string' && sqTranslation.toLowerCase().includes(lowerQuery)) {
+        return true;
+      }
+
+      return false;
+    });
   }
 
   assessSymptoms(

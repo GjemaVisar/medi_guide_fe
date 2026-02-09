@@ -11,7 +11,7 @@ import {
 } from 'rxjs';
 import { SymptomService } from '../../../services/symptom.service';
 import { Symptom, SymptomInput } from '../../../models/symptom.model';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-symptom-input',
@@ -26,18 +26,41 @@ export class SymptomInputComponent implements OnInit, OnDestroy {
   selectedSymptoms: SymptomInput[] = [];
   showResults = false;
   isSearching = false;
+  currentLang = 'sq';
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
 
-  constructor(private symptomService: SymptomService, private router: Router) {}
+  constructor(
+    private symptomService: SymptomService,
+    private router: Router,
+    private translate: TranslateService
+  ) {}
 
   ngOnInit(): void {
+    this.currentLang = this.translate.currentLang || this.translate.defaultLang || 'sq';
+    
+    this.translate.onLangChange.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((event) => {
+      this.currentLang = event.lang;
+    });
+
+    this.symptomService.loadSymptoms().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+      },
+      error: (err) => {
+        console.error('Error loading symptoms:', err);
+      }
+    });
+
     this.searchSubject
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
         switchMap((query) => {
-          if (query.length >= 2) {
+          if (query.length >= 3) {
             this.isSearching = true;
             return this.symptomService.searchSymptoms(query);
           }
@@ -47,7 +70,7 @@ export class SymptomInputComponent implements OnInit, OnDestroy {
       )
       .subscribe((results) => {
         this.searchResults = results;
-        this.showResults = this.searchQuery.length >= 2;
+        this.showResults = this.searchQuery.length >= 3;
         this.isSearching = false;
       });
 
@@ -77,10 +100,6 @@ export class SymptomInputComponent implements OnInit, OnDestroy {
 
     const symptomInput: SymptomInput = {
       symptom,
-      severity: 'moderate',
-      duration: 'few-days',
-      frequency: 'frequent',
-      additionalInfo: '',
     };
 
     this.selectedSymptoms.push(symptomInput);
@@ -98,9 +117,9 @@ export class SymptomInputComponent implements OnInit, OnDestroy {
     this.symptomService.updateAssessment({ symptoms: this.selectedSymptoms });
   }
 
-  continueToQuestions(): void {
+  continueToResults(): void {
     if (this.selectedSymptoms.length > 0) {
-      this.router.navigate(['/questions']);
+      this.router.navigate(['/results']);
     }
   }
 
@@ -114,5 +133,36 @@ export class SymptomInputComponent implements OnInit, OnDestroy {
 
   trackBySymptomInputId(index: number, symptomInput: SymptomInput): string {
     return symptomInput.symptom.id;
+  }
+
+  isSymptomSelected(symptom: Symptom): boolean {
+    return this.selectedSymptoms.some((s) => s.symptom.id === symptom.id);
+  }
+
+  getTranslatedSymptomName(symptom: Symptom): string {
+    const lang = (this.currentLang || this.translate.currentLang || this.translate.defaultLang || 'sq') as 'en' | 'sq';
+    const translationKey = symptom.translationKey || this.symptomService.getTranslationKey(symptom.commonName);
+    const translations = this.symptomService.getTranslations();
+    
+    if (translations && translations[lang] && translations[lang][translationKey]) {
+      const translated = translations[lang][translationKey];
+      if (typeof translated === 'string') {
+        if (lang === 'sq') {
+          const enTranslation = translations.en?.[translationKey];
+          if (translated !== enTranslation || !enTranslation) {
+            return translated;
+          }
+        } else {
+          return translated;
+        }
+      }
+    }
+    
+    const translatedViaService = this.translate.instant(translationKey);
+    if (translatedViaService && translatedViaService !== translationKey) {
+      return translatedViaService;
+    }
+    
+    return symptom.commonName;
   }
 }
