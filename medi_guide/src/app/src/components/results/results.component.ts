@@ -35,12 +35,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
         
         // Basic navigation guards
         if (!assessment.symptoms || assessment.symptoms.length === 0) {
-          this.router.navigate(['/symptoms']);
-          return;
-        }
-
-        if (!assessment.answers || assessment.answers.length === 0) {
-          this.router.navigate(['/questions']);
+          this.router.navigate(['/symptom-input']);
           return;
         }
 
@@ -68,7 +63,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
 
     this.symptomService.assessSymptoms(
       assessment.symptoms || [],
-      assessment.answers || []
+      []
     )
     .pipe(takeUntil(this.destroy$))
     .subscribe({
@@ -134,7 +129,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/questions']);
+    this.router.navigate(['/symptom-input']);
   }
 
   trackByConditionId(index: number, condition: Condition): string {

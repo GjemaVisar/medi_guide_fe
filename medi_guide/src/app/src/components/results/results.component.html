@@ -4,7 +4,7 @@
         <div class="progress-bar">
           <div class="progress-fill" style="width: 100%"></div>
         </div>
-        <p class="progress-text">Step 3 of 3: Your results</p>
+        <p class="progress-text">Step 2 of 2: Your results</p>
       </div>
   
       <div class="results-header text-center mb-xl" *ngIf="!isLoading && !error">
@@ -94,10 +94,6 @@
                   </div>
                   
                   <div class="condition-details">
-                    <div class="severity-indicator" [ngClass]="'status-' + condition.severity">
-                      <span class="severity-label">{{ getSeverityText(condition.severity) }}</span>
-                    </div>
-                    
                     <div class="condition-recommendation">
                       <h4>Recommendation:</h4>
                       <p>{{ condition.recommendation }}</p>

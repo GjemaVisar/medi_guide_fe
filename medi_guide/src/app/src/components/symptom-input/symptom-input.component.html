@@ -1,27 +1,41 @@
 <div class="symptom-input-container">
   <div class="container-small">
     <!-- Progress Indicator -->
-    <div class="progress-container mb-xl">
+    <div class="progress-container">
       <div class="progress-bar">
-        <div class="progress-fill" style="width: 33%"></div>
+        <div class="progress-fill" style="width: 50%"></div>
       </div>
       <p class="progress-text">{{ "STEP_INDICATOR" | translate }}</p>
     </div>
 
     <div class="card">
       <div class="card-header text-center">
+        <div class="header-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="20" fill="rgba(74,144,226,0.1)"/>
+            <path d="M20 12v8M16 16h8M14 26h12" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
         <h2>{{ "SYMPTOMS_TITLE" | translate }}</h2>
-        <p>{{ "SYMPTOMS_SUBTITLE" | translate }}</p>
+        <p class="subtitle">{{ "SYMPTOMS_SUBTITLE" | translate }}</p>
       </div>
 
       <div class="card-body">
-        <!-- Search Input -->
-        <div class="search-container mb-lg">
-          <div class="form-group">
-            <label for="symptom-search" class="form-label sr-only">
-              {{ "SEARCH_LABEL" | translate }}
-            </label>
+        <!-- Search Section -->
+        <div class="search-section">
+          <label for="symptom-search" class="form-label sr-only">
+            {{ "SEARCH_LABEL" | translate }}
+          </label>
+
+          <!-- Search wrapper: input + dropdown anchored together -->
+          <div class="search-wrapper">
             <div class="search-input-container">
+              <div class="search-icon">
+                <svg width="18" height="18" viewBox="0 0 20 20">
+                  <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <path d="m14.5 14.5 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
               <input
                 type="text"
                 id="symptom-search"
@@ -31,220 +45,107 @@
                 [placeholder]="'SEARCH_PLACEHOLDER' | translate"
                 aria-describedby="search-help"
                 autocomplete="off"
+                [class.has-results]="searchResults.length > 0 && showResults"
               />
-              <div class="search-icon">
-                <!-- magnifier SVG -->
-                <svg width="20" height="20" viewBox="0 0 20 20">
-                  <circle
-                    cx="9"
-                    cy="9"
-                    r="7"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    fill="none"
-                  />
+            </div>
+
+            <!-- Search Results Dropdown -->
+            <div
+              class="search-results"
+              *ngIf="searchResults.length > 0 && showResults"
+              role="listbox"
+              aria-label="Symptom suggestions"
+            >
+              <button
+                type="button"
+                class="search-result-item"
+                [class.selected]="isSymptomSelected(symptom)"
+                *ngFor="let symptom of searchResults; trackBy: trackBySymptomId"
+                (click)="selectSymptom(symptom)"
+                role="option"
+                [attr.aria-label]="
+                  'SELECT_SYMPTOM_ARIA'
+                    | translate : { symptomName: getTranslatedSymptomName(symptom) }
+                "
+              >
+                <div class="symptom-info">
+                  <span class="symptom-name">{{ getTranslatedSymptomName(symptom) }}</span>
+                </div>
+                <div class="symptom-check" *ngIf="isSymptomSelected(symptom)">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="9" fill="#6BCF7F" stroke="#6BCF7F" stroke-width="2"/>
+                    <path d="M6 10l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="symptom-add" *ngIf="!isSymptomSelected(symptom)">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="8" stroke="#4a90e2" stroke-width="1.5"/>
+                    <path d="M9 5v8M5 9h8" stroke="#4a90e2" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </button>
+            </div>
+
+            <!-- No Results -->
+            <div
+              class="no-results"
+              *ngIf="searchQuery.length >= 3 && searchResults.length === 0 && !isSearching"
+            >
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                <circle cx="18" cy="18" r="16" stroke="#E1E8ED" stroke-width="2"/>
+                <path d="M12 18h12" stroke="#E1E8ED" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <p class="no-results-text">{{ "NO_RESULTS_TITLE" | translate }}</p>
+              <p class="no-results-hint">{{ "NO_RESULTS_BODY" | translate }}</p>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading" *ngIf="isSearching">
+              <div class="loading-spinner"></div>
+              <p>{{ "LOADING_SYMPTOMS" | translate }}</p>
+            </div>
+          </div>
+
+          <p id="search-help" class="search-help">
+            {{ "SEARCH_HELP" | translate }} ({{ "MINIMUM_CHARACTERS" | translate }})
+          </p>
+        </div>
+
+        <!-- Selected Symptoms Section -->
+        <div class="selected-symptoms-section" *ngIf="selectedSymptoms.length > 0">
+          <div class="selected-header">
+            <h3 class="selected-symptoms-title">
+              {{ "YOUR_SYMPTOMS" | translate }}
+            </h3>
+            <span class="selected-count">{{ selectedSymptoms.length }}</span>
+          </div>
+          <div class="symptom-tags">
+            <span
+              class="symptom-tag"
+              *ngFor="let symptomInput of selectedSymptoms; trackBy: trackBySymptomInputId"
+            >
+              <span class="tag-dot"></span>
+              <span class="tag-text">{{ getTranslatedSymptomName(symptomInput.symptom) }}</span>
+              <button
+                type="button"
+                class="tag-remove-btn"
+                (click)="removeSymptom(symptomInput)"
+                [attr.aria-label]="
+                  'REMOVE_SYMPTOM_ARIA'
+                    | translate
+                      : { symptomName: getTranslatedSymptomName(symptomInput.symptom) }
+                "
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path
-                    d="m16 16 4.35 4.35"
+                    d="M10 4L4 10M4 4l6 6"
                     stroke="currentColor"
-                    stroke-width="2"
+                    stroke-width="1.5"
                     stroke-linecap="round"
                   />
                 </svg>
-              </div>
-            </div>
-            <p id="search-help" class="search-help">
-              {{ "SEARCH_HELP" | translate }}
-            </p>
-          </div>
-
-          <!-- Search Results -->
-          <div
-            class="search-results"
-            *ngIf="searchResults.length > 0 && showResults"
-            role="listbox"
-            aria-label="Symptom suggestions"
-          >
-            <button
-              type="button"
-              class="search-result-item"
-              *ngFor="let symptom of searchResults; trackBy: trackBySymptomId"
-              (click)="selectSymptom(symptom)"
-              role="option"
-              [attr.aria-label]="
-                'SELECT_SYMPTOM_ARIA'
-                  | translate : { symptomName: symptom.commonName }
-              "
-            >
-              <div class="symptom-info">
-                <span class="symptom-name">{{ symptom.commonName }}</span>
-                <span class="symptom-category">{{ symptom.category }}</span>
-              </div>
-              <div
-                class="severity-indicator"
-                [class]="'status-' + symptom.severity"
-              >
-                {{ symptom.severity }}
-              </div>
-            </button>
-          </div>
-
-          <!-- No Results -->
-          <div
-            class="no-results"
-            *ngIf="searchQuery && searchResults.length === 0 && !isSearching"
-          >
-            <div class="no-results-content">
-              <svg width="48" height="48" viewBox="0 0 48 48">
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="22"
-                  stroke="#E1E8ED"
-                  stroke-width="4"
-                />
-                <path
-                  d="M16 24h16M24 16v16"
-                  stroke="#E1E8ED"
-                  stroke-width="4"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <h4>{{ "NO_RESULTS_TITLE" | translate }}</h4>
-              <p>{{ "NO_RESULTS_BODY" | translate }}</p>
-            </div>
-          </div>
-
-          <!-- Loading -->
-          <div class="loading" *ngIf="isSearching">
-            <div class="loading-spinner"></div>
-            <p>{{ "LOADING_SYMPTOMS" | translate }}</p>
-          </div>
-        </div>
-
-        <!-- Selected Symptoms -->
-        <div class="selected-symptoms" *ngIf="selectedSymptoms.length > 0">
-          <h3>{{ "YOUR_SYMPTOMS" | translate }}</h3>
-          <div class="symptom-cards">
-            <div
-              class="symptom-card"
-              *ngFor="
-                let symptomInput of selectedSymptoms;
-                trackBy: trackBySymptomInputId
-              "
-            >
-              <div class="symptom-card-header">
-                <h4>{{ symptomInput.symptom.commonName }}</h4>
-                <button
-                  type="button"
-                  class="remove-symptom-btn"
-                  (click)="removeSymptom(symptomInput)"
-                  [attr.aria-label]="
-                    'REMOVE_SYMPTOM_ARIA'
-                      | translate
-                        : { symptomName: symptomInput.symptom.commonName }
-                  "
-                >
-                  <!-- X icon -->
-                  <svg width="16" height="16" viewBox="0 0 16 16">
-                    <path
-                      d="M12 4L4 12M4 4l8 8"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div class="symptom-details">
-                <!-- Severity -->
-                <div class="detail-group">
-                  <label
-                    [for]="'severity-' + symptomInput.symptom.id"
-                    class="detail-label"
-                  >
-                    {{ "SEVERITY_LABEL" | translate }}
-                  </label>
-                  <select
-                    [id]="'severity-' + symptomInput.symptom.id"
-                    class="detail-select"
-                    [(ngModel)]="symptomInput.severity"
-                  >
-                    <option value="mild">
-                      {{ "SEVERITY_MILD" | translate }}
-                    </option>
-                    <option value="moderate">
-                      {{ "SEVERITY_MODERATE" | translate }}
-                    </option>
-                    <option value="severe">
-                      {{ "SEVERITY_SEVERE" | translate }}
-                    </option>
-                  </select>
-                </div>
-
-                <!-- Duration -->
-                <div class="detail-group">
-                  <label
-                    [for]="'duration-' + symptomInput.symptom.id"
-                    class="detail-label"
-                  >
-                    {{ "DURATION_LABEL" | translate }}
-                  </label>
-                  <select
-                    [id]="'duration-' + symptomInput.symptom.id"
-                    class="detail-select"
-                    [(ngModel)]="symptomInput.duration"
-                  >
-                    <option value="less-than-hour">
-                      {{ "DURATION_LESS_HOUR" | translate }}
-                    </option>
-                    <option value="few-hours">
-                      {{ "DURATION_FEW_HOURS" | translate }}
-                    </option>
-                    <option value="1-day">
-                      {{ "DURATION_ONE_DAY" | translate }}
-                    </option>
-                    <option value="few-days">
-                      {{ "DURATION_FEW_DAYS" | translate }}
-                    </option>
-                    <option value="1-week">
-                      {{ "DURATION_ONE_WEEK" | translate }}
-                    </option>
-                    <option value="more-than-week">
-                      {{ "DURATION_MORE_WEEK" | translate }}
-                    </option>
-                  </select>
-                </div>
-
-                <!-- Frequency -->
-                <div class="detail-group">
-                  <label
-                    [for]="'frequency-' + symptomInput.symptom.id"
-                    class="detail-label"
-                  >
-                    {{ "FREQUENCY_LABEL" | translate }}
-                  </label>
-                  <select
-                    [id]="'frequency-' + symptomInput.symptom.id"
-                    class="detail-select"
-                    [(ngModel)]="symptomInput.frequency"
-                  >
-                    <option value="constant">
-                      {{ "FREQUENCY_CONSTANT" | translate }}
-                    </option>
-                    <option value="frequent">
-                      {{ "FREQUENCY_FREQUENT" | translate }}
-                    </option>
-                    <option value="occasional">
-                      {{ "FREQUENCY_OCCASIONAL" | translate }}
-                    </option>
-                    <option value="rare">
-                      {{ "FREQUENCY_RARE" | translate }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </div>
+              </button>
+            </span>
           </div>
         </div>
       </div>
@@ -258,10 +159,13 @@
           <button
             type="button"
             class="btn btn-primary"
-            (click)="continueToQuestions()"
+            (click)="continueToResults()"
             [disabled]="selectedSymptoms.length === 0"
           >
             <span>{{ "BUTTON_CONTINUE" | translate }}</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </button>
         </div>
       </div>
