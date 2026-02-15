@@ -1,0 +1,131 @@
+<div class="hospitals-page">
+  <div class="container">
+    <!-- Back button -->
+    <button class="back-btn" (click)="goBack()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M16 10H4M10 16l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      {{ "HOSPITALS_BACK_TO_RESULTS" | translate }}
+    </button>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="page-title">{{ "HOSPITALS_PAGE_TITLE" | translate }}</h1>
+      <p class="page-subtitle">{{ "HOSPITALS_PAGE_SUBTITLE" | translate }}</p>
+    </div>
+
+    <!-- City picker -->
+    <div class="city-picker">
+      <label for="city-select" class="city-picker-label">{{ "HOSPITALS_SELECT_CITY" | translate }}</label>
+      <div class="city-select-wrapper">
+        <select
+          id="city-select"
+          class="city-select"
+          [ngModel]="selectedCity"
+          (ngModelChange)="onCityChange($event)"
+        >
+          <option value="" disabled>{{ "HOSPITALS_CITY_PLACEHOLDER" | translate }}</option>
+          <option *ngFor="let city of kosovoCities" [value]="city">{{ city }}</option>
+        </select>
+        <div class="city-select-arrow">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <div class="hospital-loading" *ngIf="hospitalsLoading">
+      <div class="hospital-spinner"></div>
+      <span>{{ "HOSPITALS_LOADING" | translate }}</span>
+    </div>
+
+    <!-- Error -->
+    <div class="hospital-error" *ngIf="hospitalsError && !hospitalsLoading">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 6v5M10 13h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>{{ hospitalsError }}</span>
+    </div>
+
+    <!-- No hospitals -->
+    <div class="hospital-empty" *ngIf="hospitalsLoaded && !hospitalsLoading && !hospitalsError && hospitals.length === 0">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span>{{ "HOSPITALS_EMPTY" | translate }}</span>
+    </div>
+
+    <!-- Hospital cards grid -->
+    <div class="hospital-grid" *ngIf="hospitals.length > 0 && !hospitalsLoading">
+      <div
+        class="hospital-card"
+        *ngFor="let hospital of hospitals; trackBy: trackByHospitalId"
+      >
+        <div class="hospital-card-image" *ngIf="hospital.image">
+          <img [src]="hospital.image" [alt]="hospital.name" loading="lazy" />
+        </div>
+        <div class="hospital-card-image hospital-card-image--placeholder" *ngIf="!hospital.image">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <path d="M3 21h18M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="hospital-card-body">
+          <h4 class="hospital-card-name">{{ hospital.name }}</h4>
+          <p class="hospital-card-location" *ngIf="hospital.location">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            {{ hospital.location }}
+          </p>
+          <div class="hospital-card-phones" *ngIf="hospital.phoneNumbers && hospital.phoneNumbers.length > 0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span *ngFor="let phone of hospital.phoneNumbers; let last = last">
+              <a [href]="'tel:' + phone">{{ phone }}</a>{{ last ? '' : ', ' }}
+            </span>
+          </div>
+
+          <div class="hospital-card-actions">
+            <a
+              *ngIf="hospital.website"
+              [href]="hospital.website"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hospital-btn hospital-btn-website"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              {{ "HOSPITALS_WEBSITE" | translate }}
+            </a>
+            <a
+              *ngIf="hospital.link"
+              [href]="hospital.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hospital-btn hospital-btn-directions"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              {{ "HOSPITALS_DIRECTIONS" | translate }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,17 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { SymptomService } from '../../../services/symptom.service';
 import { Condition, Assessment, PredictedDisease } from '../../../models/symptom.model';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 
 @Component({
   selector: 'app-results',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.scss']
 })
@@ -24,15 +25,26 @@ export class ResultsComponent implements OnInit, OnDestroy {
   error = '';
   loadingStep = 0;
   animateResults = false;
+  currentLang = 'sq';
+
   private destroy$ = new Subject<void>();
   private currentAssessment: Partial<Assessment> = {};
 
   constructor(
     private symptomService: SymptomService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
+    this.currentLang = this.translate.currentLang || this.translate.defaultLang || 'sq';
+
+    this.translate.onLangChange.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((event) => {
+      this.currentLang = event.lang;
+    });
+
     this.symptomService.getCurrentAssessment()
       .pipe(takeUntil(this.destroy$))
       .subscribe(assessment => {
@@ -185,5 +197,39 @@ export class ResultsComponent implements OnInit, OnDestroy {
   formatDiseaseName(name: string): string {
     if (!name || !name.trim()) return name;
     return name.trim().replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  /**
+   * Get the translated disease name using the translation files.
+   * Falls back to the formatted (capitalized) English name if no translation is found.
+   */
+  getTranslatedDiseaseName(diseaseName: string): string {
+    if (!diseaseName || !diseaseName.trim()) return diseaseName;
+
+    const lang = (this.currentLang || this.translate.currentLang || this.translate.defaultLang || 'sq') as 'en' | 'sq';
+    const translationKey = this.symptomService.getTranslationKey(diseaseName);
+    const translations = this.symptomService.getTranslations();
+
+    // Look up from cached translations
+    if (translations && translations[lang] && translations[lang][translationKey]) {
+      const translated = translations[lang][translationKey];
+      if (typeof translated === 'string') {
+        return translated;
+      }
+    }
+
+    // Try via TranslateService.instant()
+    const translatedViaService = this.translate.instant(translationKey);
+    if (translatedViaService && translatedViaService !== translationKey) {
+      return translatedViaService;
+    }
+
+    // Fallback: capitalised English name
+    return this.formatDiseaseName(diseaseName);
+  }
+
+  /** Navigate to the dedicated hospitals page */
+  goToHospitals(): void {
+    this.router.navigate(['/hospitals']);
   }
 }

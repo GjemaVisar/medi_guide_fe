@@ -54,3 +54,15 @@ export interface Assessment {
     urgency: 'low' | 'moderate' | 'high';
   };
 }
+
+/** Response from the KosovoHospitals API */
+export interface KosovoHospital {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  link: string;
+  image: string;
+  phoneNumbers: string[];
+  website: string | null;
+}
