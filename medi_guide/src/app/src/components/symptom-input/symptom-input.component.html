@@ -150,22 +150,33 @@
         </div>
       </div>
 
+      <!-- Submitting Overlay -->
+      <div class="submitting-overlay" *ngIf="isSubmitting">
+        <div class="submitting-content">
+          <div class="submitting-spinner"></div>
+          <h3>{{ "SUBMITTING_TITLE" | translate }}</h3>
+          <p>{{ "SUBMITTING_BODY" | translate }}</p>
+        </div>
+      </div>
+
       <!-- Footer -->
       <div class="card-footer" *ngIf="selectedSymptoms.length > 0">
         <div class="footer-actions">
-          <button type="button" class="btn btn-secondary" (click)="goBack()">
+          <button type="button" class="btn btn-secondary" (click)="goBack()" [disabled]="isSubmitting">
             {{ "BUTTON_BACK" | translate }}
           </button>
           <button
             type="button"
             class="btn btn-primary"
             (click)="continueToResults()"
-            [disabled]="selectedSymptoms.length === 0"
+            [disabled]="selectedSymptoms.length === 0 || isSubmitting"
           >
-            <span>{{ "BUTTON_CONTINUE" | translate }}</span>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <span *ngIf="!isSubmitting">{{ "BUTTON_CONTINUE" | translate }}</span>
+            <span *ngIf="isSubmitting">{{ "SUBMITTING_BUTTON" | translate }}</span>
+            <svg *ngIf="!isSubmitting" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+            <div *ngIf="isSubmitting" class="btn-spinner"></div>
           </button>
         </div>
       </div>

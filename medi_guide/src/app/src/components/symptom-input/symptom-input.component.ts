@@ -26,6 +26,7 @@ export class SymptomInputComponent implements OnInit, OnDestroy {
   selectedSymptoms: SymptomInput[] = [];
   showResults = false;
   isSearching = false;
+  isSubmitting = false;
   currentLang = 'sq';
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
@@ -118,8 +119,27 @@ export class SymptomInputComponent implements OnInit, OnDestroy {
   }
 
   continueToResults(): void {
-    if (this.selectedSymptoms.length > 0) {
-      this.router.navigate(['/results']);
+    if (this.selectedSymptoms.length > 0 && !this.isSubmitting) {
+      this.isSubmitting = true;
+      this.symptomService.selectedSymptoms(this.selectedSymptoms.map(s => s.symptom)).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: (response) => {
+          if (response && Array.isArray(response)) {
+            this.symptomService.setPredictedDiseases(response);
+          } else {
+            this.symptomService.setPredictedDiseases([]);
+          }
+          this.isSubmitting = false;
+          this.router.navigate(['/results']);
+        },
+        error: (err) => {
+          console.error('Error calling selectedSymptoms API:', err);
+          this.symptomService.setPredictedDiseases([]);
+          this.isSubmitting = false;
+          this.router.navigate(['/results']);
+        }
+      });
     }
   }
 

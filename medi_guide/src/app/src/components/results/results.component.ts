@@ -2,23 +2,28 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { SymptomService } from '../../../services/symptom.service'; 
-import { Condition, Assessment } from '../../../models/symptom.model'; 
+import { take } from 'rxjs/operators';
+import { SymptomService } from '../../../services/symptom.service';
+import { Condition, Assessment, PredictedDisease } from '../../../models/symptom.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @Component({
   selector: 'app-results',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './results.component.html', 
-  styleUrls: ['./results.component.scss'] // External styles
+  imports: [CommonModule, TranslateModule],
+  templateUrl: './results.component.html',
+  styleUrls: ['./results.component.scss']
 })
 export class ResultsComponent implements OnInit, OnDestroy {
   conditions: Condition[] = [];
   primaryRecommendation: Condition | null = null;
+  predictedDiseases: PredictedDisease[] = [];
+  hasPrediction = false;
   isLoading = false;
   error = '';
   loadingStep = 0;
+  animateResults = false;
   private destroy$ = new Subject<void>();
   private currentAssessment: Partial<Assessment> = {};
 
@@ -32,14 +37,22 @@ export class ResultsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(assessment => {
         this.currentAssessment = assessment;
-        
-        // Basic navigation guards
+
         if (!assessment.symptoms || assessment.symptoms.length === 0) {
           this.router.navigate(['/symptom-input']);
           return;
         }
 
-        this.performAssessment(assessment);
+        this.symptomService.getPredictedDiseases().pipe(take(1)).subscribe(diseases => {
+          if (diseases && diseases.length > 0) {
+            this.predictedDiseases = diseases;
+            this.hasPrediction = true;
+            // Trigger staggered animation after a short delay
+            setTimeout(() => { this.animateResults = true; }, 100);
+          } else {
+            this.performAssessment(assessment);
+          }
+        });
       });
   }
 
@@ -53,7 +66,6 @@ export class ResultsComponent implements OnInit, OnDestroy {
     this.error = '';
     this.loadingStep = 0;
 
-    // Simulate loading steps for UI feedback
     const steps = [1, 2, 3];
     steps.forEach((step, index) => {
       setTimeout(() => {
@@ -71,8 +83,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
         this.conditions = conditions;
         this.primaryRecommendation = conditions[0] || null;
         this.isLoading = false;
-        
-        // Update assessment with results
+
         this.symptomService.updateAssessment({
           ...assessment,
           conditions,
@@ -83,14 +94,14 @@ export class ResultsComponent implements OnInit, OnDestroy {
           }
         });
       },
-      error: (error) => {
+      error: () => {
         this.error = 'Failed to analyze your symptoms. Please try again.';
         this.isLoading = false;
       }
     });
   }
 
-  // Helper functions for class and text binding in HTML
+  // Helper functions
   getUrgencyClass(category: string): string {
     return `urgency-${category}`;
   }
@@ -114,6 +125,36 @@ export class ResultsComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Get percentage value from similarity score */
+  getPercentage(score: number): number {
+    return Math.round(score * 100);
+  }
+
+  /** Get appropriate CSS class based on match strength */
+  getMatchClass(score: number): string {
+    const pct = this.getPercentage(score);
+    if (pct >= 70) return 'match-high';
+    if (pct >= 40) return 'match-medium';
+    return 'match-low';
+  }
+
+  /** Get match label based on score */
+  getMatchLabel(score: number): string {
+    const pct = this.getPercentage(score);
+    if (pct >= 70) return 'MATCH_HIGH';
+    if (pct >= 40) return 'MATCH_MEDIUM';
+    return 'MATCH_LOW';
+  }
+
+  /** Get ordinal rank label (1st, 2nd, 3rd...) */
+  getRankLabel(index: number): string {
+    const n = index + 1;
+    if (n === 1) return '1st';
+    if (n === 2) return '2nd';
+    if (n === 3) return '3rd';
+    return n + 'th';
+  }
+
   // Action methods
   startNewAssessment(): void {
     this.symptomService.resetAssessment();
@@ -134,5 +175,15 @@ export class ResultsComponent implements OnInit, OnDestroy {
 
   trackByConditionId(index: number, condition: Condition): string {
     return condition.id;
+  }
+
+  trackByDiseaseName(index: number, item: PredictedDisease): string {
+    return item.diseaseName + '-' + index;
+  }
+
+  /** Format disease name for display (e.g. "panic disorder" -> "Panic Disorder") */
+  formatDiseaseName(name: string): string {
+    if (!name || !name.trim()) return name;
+    return name.trim().replace(/\b\w/g, c => c.toUpperCase());
   }
 }

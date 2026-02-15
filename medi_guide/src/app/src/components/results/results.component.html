@@ -1,184 +1,261 @@
 <div class="results-container">
-    <div class="container">
-      <div class="progress-container mb-xl text-center">
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: 100%"></div>
-        </div>
-        <p class="progress-text">Step 2 of 2: Your results</p>
+  <div class="container">
+    <!-- Progress Bar -->
+    <div class="progress-container mb-xl text-center">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 100%"></div>
       </div>
-  
-      <div class="results-header text-center mb-xl" *ngIf="!isLoading && !error">
-        <div class="results-icon mb-lg">
-          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="40" cy="40" r="38" fill="#6BCF7F" stroke="#ffffff" stroke-width="4"/>
-            <path d="M25 40l10 10L60 25" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <p class="progress-text">{{ "RESULTS_STEP_LABEL" | translate }}</p>
+    </div>
+
+    <!-- ============ SUCCESS HEADER ============ -->
+    <div class="results-header text-center mb-xl" *ngIf="!isLoading && !error">
+      <div class="results-icon mb-lg">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="40" cy="40" r="38" fill="#6BCF7F" stroke="#ffffff" stroke-width="4"/>
+          <path d="M25 40l10 10L60 25" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1>{{ hasPrediction ? ("RESULTS_TITLE_PREDICTION" | translate) : "Assessment Complete" }}</h1>
+      <p class="lead">{{ hasPrediction ? ("RESULTS_LEAD_PREDICTION" | translate) : "Based on your symptoms, here are potential conditions and recommendations." }}</p>
+    </div>
+
+    <!-- ============ DISCLAIMER ============ -->
+    <div class="alert alert-warning mb-xl" *ngIf="!isLoading && !error">
+      <div class="alert-content">
+        <div class="alert-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 22h20L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h1>Assessment Complete</h1>
-        <p class="lead">Based on your symptoms, here are potential conditions and recommendations.</p>
+        <div class="alert-text">
+          <p><strong>{{ "RESULTS_DISCLAIMER_TITLE" | translate }}</strong> {{ "RESULTS_DISCLAIMER_BODY" | translate }}</p>
+        </div>
       </div>
-  
-      <div class="alert alert-warning mb-xl" *ngIf="!isLoading && !error">
-        <div class="alert-content">
-          <div class="alert-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 9v3.75m-6.75 1.5.75-.75a3 3 0 013.75-3.75l.75.75m1.5 0L12 9l1.5 1.5M12 15.75h.007v.008H12v-.008z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </div>
+
+    <!-- ============ PREDICTED DISEASES (Friendly Cards) ============ -->
+    <div class="results-content" *ngIf="!isLoading && !error">
+
+      <div class="prediction-section mb-xl" *ngIf="hasPrediction && predictedDiseases.length > 0">
+
+        <!-- Top Result — highlighted hero card -->
+        <div class="top-result-card" [class.animate-in]="animateResults">
+          <div class="top-result-badge">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 2l2.5 5 5.5.8-4 3.9.9 5.3L10 14.5 5.1 17l.9-5.3-4-3.9L7.5 7z" fill="currentColor"/>
+            </svg>
+            <span>{{ "RESULTS_TOP_MATCH" | translate }}</span>
+          </div>
+          <div class="top-result-body">
+            <h2 class="top-disease-name">{{ formatDiseaseName(predictedDiseases[0].diseaseName) }}</h2>
+            <div class="top-score-row">
+              <div class="score-bar-track">
+                <div
+                  class="score-bar-fill"
+                  [class]="getMatchClass(predictedDiseases[0].similarityScore)"
+                  [style.width]="animateResults ? getPercentage(predictedDiseases[0].similarityScore) + '%' : '0%'"
+                ></div>
+              </div>
+              <span class="score-value" [class]="getMatchClass(predictedDiseases[0].similarityScore)">
+                {{ getPercentage(predictedDiseases[0].similarityScore) }}%
+              </span>
+            </div>
+            <span class="match-label" [class]="getMatchClass(predictedDiseases[0].similarityScore)">
+              {{ getMatchLabel(predictedDiseases[0].similarityScore) | translate }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Other Results -->
+        <div class="other-results" *ngIf="predictedDiseases.length > 1">
+          <h3 class="other-results-title">{{ "RESULTS_OTHER_MATCHES" | translate }}</h3>
+          <div class="disease-cards-list">
+            <div
+              *ngFor="let item of predictedDiseases.slice(1); let i = index; trackBy: trackByDiseaseName"
+              class="disease-card"
+              [class.animate-in]="animateResults"
+              [style.animation-delay]="(i * 120) + 'ms'"
+            >
+              <div class="disease-card-rank">
+                <span class="rank-number">{{ getRankLabel(i + 1) }}</span>
+              </div>
+              <div class="disease-card-info">
+                <span class="disease-card-name">{{ formatDiseaseName(item.diseaseName) }}</span>
+                <div class="disease-card-score-row">
+                  <div class="score-bar-track small">
+                    <div
+                      class="score-bar-fill"
+                      [class]="getMatchClass(item.similarityScore)"
+                      [style.width]="animateResults ? getPercentage(item.similarityScore) + '%' : '0%'"
+                    ></div>
+                  </div>
+                  <span class="score-value small" [class]="getMatchClass(item.similarityScore)">
+                    {{ getPercentage(item.similarityScore) }}%
+                  </span>
+                </div>
+              </div>
+              <span class="match-pill" [class]="getMatchClass(item.similarityScore)">
+                {{ getMatchLabel(item.similarityScore) | translate }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prediction Note -->
+        <div class="prediction-note-card">
+          <div class="note-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10 6v5M10 13h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </div>
-          <div class="alert-text">
-            <p><strong>This is not a medical diagnosis.</strong> Please consult with a healthcare professional for proper medical advice and treatment.</p>
-          </div>
+          <p>{{ "RESULTS_PREDICTION_NOTE" | translate }}</p>
         </div>
       </div>
-  
-      <div class="results-content" *ngIf="!isLoading && !error">
-        <div class="recommendation-card mb-xl" *ngIf="primaryRecommendation">
-          <div class="card">
-            <div class="card-header">
-              <h2>Primary Recommendation</h2>
-              <div class="urgency-badge" [ngClass]="getUrgencyClass(primaryRecommendation.category)">
-                {{ getUrgencyText(primaryRecommendation.category) }}
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="recommendation-content">
-                <div class="recommendation-icon">
-                  <ng-container [ngSwitch]="primaryRecommendation.category">
-                    <svg *ngSwitchCase="'self-care'" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M16 6l4 8h8l-6.5 4.7L24 28l-8-6-8 6 2.5-9.3L4 14h8l4-8z" fill="#6BCF7F"/>
-                    </svg>
-                    <svg *ngSwitchCase="'non-emergent'" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="16" cy="16" r="14" stroke="#F39C12" stroke-width="4"/>
-                      <path d="M16 10v6M16 20h.01" stroke="#F39C12" stroke-width="4" stroke-linecap="round"/>
-                    </svg>
-                    <svg *ngSwitchCase="'urgent'" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M16 2L2 28h28L16 2z" stroke="#F39C12" stroke-width="3"/>
-                      <path d="M16 12v6M16 22h.01" stroke="#F39C12" stroke-width="3" stroke-linecap="round"/>
-                    </svg>
-                    <svg *ngSwitchCase="'emergency'" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="16" cy="16" r="14" fill="#E74C3C"/>
-                      <path d="M12 8h8v8h8v8h-8v8h-8v-8H4v-8h8V8z" fill="white"/>
-                    </svg>
-                  </ng-container>
-                </div>
-                <div class="recommendation-text">
-                  <h3>{{ primaryRecommendation.commonName }}</h3>
-                  <p>{{ primaryRecommendation.recommendation }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-  
-        <div class="conditions-section" *ngIf="conditions.length > 0">
-          <h2 class="section-title mb-lg">Possible Conditions</h2>
-          <p class="section-subtitle mb-lg">Listed in order of likelihood based on your symptoms:</p>
-          
-          <div class="conditions-grid">
-            <div 
-              class="condition-card"
-              *ngFor="let condition of conditions; trackBy: trackByConditionId"
-            >
-              <div class="card">
-                <div class="card-body">
-                  <div class="condition-header">
-                    <div class="condition-info">
-                      <h3>{{ condition.commonName }}</h3>
-                      <p class="condition-description">{{ condition.description }}</p>
-                    </div>
-                    <div class="condition-probability">
-                      <div class="probability-circle" [style.--probability]="condition.probability + '%'">
-                        <span class="probability-text">{{ condition.probability }}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="condition-details">
-                    <div class="condition-recommendation">
-                      <h4>Recommendation:</h4>
-                      <p>{{ condition.recommendation }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-  
-        <div class="action-section text-center mt-2xl">
-          <div class="action-buttons">
-            <button
-              type="button"
-              class="btn btn-primary btn-large"
-              (click)="startNewAssessment()"
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Start New Assessment
-            </button>
-            
-            <button
-              type="button"
-              class="btn btn-secondary btn-large"
-              (click)="printResults()"
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 11h6v4H7zM7 3h6l2 2v2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2v2a2 2 0 01-2 2H9a2 2 0 01-2-2v-2H5a2 2 0 01-2-2V9a2 2 0 012-2h2V5l2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Print Results
-            </button>
-          </div>
-          
-          <p class="action-note mt-md">
-            Remember to seek professional medical advice for proper diagnosis and treatment.
-          </p>
-        </div>
-      </div>
-  
-      <div class="loading-section text-center" *ngIf="isLoading">
-        <div class="loading-content">
-          <div class="loading-spinner"></div>
-          <h2>Analyzing Your Symptoms</h2>
-          <p>Please wait while we process your information and generate personalized recommendations.</p>
-          <div class="loading-steps">
-            <div class="loading-step" [class.active]="loadingStep >= 1">
-              <span class="step-number">1</span>
-              <span class="step-text">Processing symptoms</span>
-            </div>
-            <div class="loading-step" [class.active]="loadingStep >= 2">
-              <span class="step-number">2</span>
-              <span class="step-text">Analyzing patterns</span>
-            </div>
-            <div class="loading-step" [class.active]="loadingStep >= 3">
-              <span class="step-number">3</span>
-              <span class="step-text">Generating results</span>
-            </div>
-          </div>
-        </div>
-      </div>
-  
-      <div class="error-section text-center" *ngIf="error">
+
+      <!-- Fallback: old condition-based results (when no API prediction) -->
+      <div class="recommendation-card mb-xl" *ngIf="!hasPrediction && primaryRecommendation">
         <div class="card">
+          <div class="card-header">
+            <h2>Primary Recommendation</h2>
+            <div class="urgency-badge" [ngClass]="getUrgencyClass(primaryRecommendation.category)">
+              {{ getUrgencyText(primaryRecommendation.category) }}
+            </div>
+          </div>
           <div class="card-body">
-            <div class="error-content">
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="40" cy="40" r="38" stroke="#E74C3C" stroke-width="4"/>
-                <path d="M25 25l30 30M55 25L25 55" stroke="#E74C3C" stroke-width="4" stroke-linecap="round"/>
-              </svg>
-              <h2>Assessment Error</h2>
-              <p>{{ error }}</p>
-              <div class="error-actions">
-                <button type="button" class="btn btn-primary" (click)="retry()">
-                  Try Again
-                </button>
-                <button type="button" class="btn btn-secondary" (click)="goBack()">
-                  Go Back
-                </button>
+            <div class="recommendation-content">
+              <div class="recommendation-text">
+                <h3>{{ primaryRecommendation.commonName }}</h3>
+                <p>{{ primaryRecommendation.recommendation }}</p>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="conditions-section" *ngIf="!hasPrediction && conditions.length > 0">
+        <h2 class="section-title mb-lg">Possible Conditions</h2>
+        <p class="section-subtitle mb-lg">Listed in order of likelihood based on your symptoms:</p>
+        <div class="conditions-grid">
+          <div
+            class="condition-card"
+            *ngFor="let condition of conditions; trackBy: trackByConditionId"
+          >
+            <div class="card">
+              <div class="card-body">
+                <div class="condition-header">
+                  <div class="condition-info">
+                    <h3>{{ condition.commonName }}</h3>
+                    <p class="condition-description">{{ condition.description }}</p>
+                  </div>
+                  <div class="condition-probability">
+                    <div class="probability-circle" [style.--probability]="condition.probability + '%'">
+                      <span class="probability-text">{{ condition.probability }}%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="condition-details">
+                  <div class="condition-recommendation">
+                    <h4>Recommendation:</h4>
+                    <p>{{ condition.recommendation }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-section text-center mt-2xl">
+        <div class="action-buttons">
+          <button
+            type="button"
+            class="btn btn-outline btn-large"
+            (click)="goBack()"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M16 10H4M10 16l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ "RESULTS_EDIT_SYMPTOMS" | translate }}
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-primary btn-large"
+            (click)="startNewAssessment()"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ "RESULTS_NEW_ASSESSMENT" | translate }}
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary btn-large"
+            (click)="printResults()"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M6 14H4a2 2 0 01-2-2V8a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2h-2M6 10h8v6H6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ "RESULTS_PRINT" | translate }}
+          </button>
+        </div>
+
+        <p class="action-note mt-md">
+          {{ "RESULTS_SEEK_ADVICE" | translate }}
+        </p>
+      </div>
+    </div>
+
+    <!-- ============ LOADING ============ -->
+    <div class="loading-section text-center" *ngIf="isLoading">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h2>{{ "RESULTS_LOADING_TITLE" | translate }}</h2>
+        <p>{{ "RESULTS_LOADING_BODY" | translate }}</p>
+        <div class="loading-steps">
+          <div class="loading-step" [class.active]="loadingStep >= 1">
+            <span class="step-number">1</span>
+            <span class="step-text">{{ "RESULTS_LOADING_STEP1" | translate }}</span>
+          </div>
+          <div class="loading-step" [class.active]="loadingStep >= 2">
+            <span class="step-number">2</span>
+            <span class="step-text">{{ "RESULTS_LOADING_STEP2" | translate }}</span>
+          </div>
+          <div class="loading-step" [class.active]="loadingStep >= 3">
+            <span class="step-number">3</span>
+            <span class="step-text">{{ "RESULTS_LOADING_STEP3" | translate }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ERROR ============ -->
+    <div class="error-section text-center" *ngIf="error">
+      <div class="card">
+        <div class="card-body">
+          <div class="error-content">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <circle cx="40" cy="40" r="38" stroke="#E74C3C" stroke-width="4"/>
+              <path d="M25 25l30 30M55 25L25 55" stroke="#E74C3C" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <h2>{{ "RESULTS_ERROR_TITLE" | translate }}</h2>
+            <p>{{ error }}</p>
+            <div class="error-actions">
+              <button type="button" class="btn btn-primary" (click)="retry()">
+                {{ "RESULTS_TRY_AGAIN" | translate }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="goBack()">
+                {{ "RESULTS_GO_BACK" | translate }}
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
