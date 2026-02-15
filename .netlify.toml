@@ -1,0 +1,12 @@
+[build]
+  base = "medi_guide"
+  command = "npm run build -- --configuration production"
+  publish = "dist/medi_guide"
+
+[build.environment]
+  NODE_VERSION = "16"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
