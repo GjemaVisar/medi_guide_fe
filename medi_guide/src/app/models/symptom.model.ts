@@ -38,6 +38,12 @@ export interface Condition {
   symptoms: string[];
 }
 
+/** Response item from selectedSymptoms API (cosine similarity prediction) */
+export interface PredictedDisease {
+  diseaseName: string;
+  similarityScore: number;
+}
+
 export interface Assessment {
   symptoms: SymptomInput[];
   answers: Answer[];

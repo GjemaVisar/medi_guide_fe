@@ -8,6 +8,7 @@ import {
   Assessment,
   SymptomInput,
   Answer,
+  PredictedDisease,
 } from '../models/symptom.model';
 import { environment } from '../../environments/environment';
 
@@ -30,6 +31,7 @@ export class SymptomService {
   private symptomsLoaded = false;
   private translationsCache: { en: any; sq: any } = { en: {}, sq: {} };
   private translationsLoaded = false;
+  private predictedDiseases = new BehaviorSubject<PredictedDisease[]>([]);
 
   constructor(private http: HttpClient) {}
 
@@ -350,5 +352,34 @@ export class SymptomService {
         urgency: 'low',
       },
     });
+    this.predictedDiseases.next([]);
+  }
+
+  setPredictedDiseases(diseases: PredictedDisease[]): void {
+    this.predictedDiseases.next(diseases || []);
+  }
+
+  getPredictedDiseases(): Observable<PredictedDisease[]> {
+    return this.predictedDiseases.asObservable();
+  }
+
+  /**
+   * Calls the selectedSymptoms API endpoint with all selected symptoms.
+   * Sends the original lowercase display names (commonName) as the backend expects them.
+   * e.g., "anxiety and nervousness", "burning chest pain"
+   */
+  selectedSymptoms(symptoms: Symptom[]): Observable<PredictedDisease[] | null> {
+    // Use commonName directly — it already stores the lowercase display name from the API
+    const payload = symptoms.map(symptom => symptom.commonName.toLowerCase());
+    
+    return this.http.post<PredictedDisease[]>(
+      `${environment.apiBaseUrl}/diseases/selectedSymptoms?topN=5`,
+      { symptoms: payload }
+    ).pipe(
+      catchError((error) => {
+        console.error('Error calling selectedSymptoms API:', error);
+        return of(null);
+      })
+    );
   }
 }
