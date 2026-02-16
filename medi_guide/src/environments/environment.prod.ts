@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://localhost:7226/api'
+  apiBaseUrl: 'https://medi-guide-be-246214980731.us-west3.run.app/api'
 };

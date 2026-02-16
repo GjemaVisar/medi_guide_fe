@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'https://localhost:7226/api'
+  apiBaseUrl: 'https://medi-guide-be-246214980731.us-west3.run.app/api'
 };
 
 /*
