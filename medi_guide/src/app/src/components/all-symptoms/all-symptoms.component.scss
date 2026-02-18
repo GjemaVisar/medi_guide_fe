@@ -1,0 +1,239 @@
+.all-symptoms-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+  padding: var(--spacing-xl) 0 calc(var(--spacing-xl) * 2);
+}
+
+.container-medium {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+// Page Header
+.page-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--primary-blue);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: var(--spacing-xs) 0;
+  margin-bottom: var(--spacing-md);
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: #357abd;
+  }
+}
+
+.title-section {
+  margin-bottom: var(--spacing-md);
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-xs);
+  }
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.925rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.stats-bar {
+  display: flex;
+  align-items: center;
+}
+
+.symptom-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--white);
+  color: var(--primary-blue);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+// Filter Bar
+.filter-bar {
+  margin-bottom: var(--spacing-lg);
+}
+
+.filter-input-container {
+  position: relative;
+}
+
+.filter-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--medium-gray);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 12px 40px 12px 44px;
+  height: 48px;
+  border: 2px solid var(--gray);
+  border-radius: var(--radius-lg);
+  font-size: 0.95rem;
+  background: var(--white);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.12);
+    outline: none;
+  }
+
+  &::placeholder {
+    color: var(--medium-gray);
+  }
+}
+
+.filter-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: var(--light-gray);
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--gray);
+    color: var(--text-primary);
+  }
+}
+
+
+// Loading & Empty States
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: calc(var(--spacing-xl) * 2) var(--spacing-lg);
+
+  p {
+    color: var(--text-secondary);
+    font-size: 0.925rem;
+    margin: var(--spacing-md) 0 0;
+  }
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--light-gray);
+  border-top: 3px solid var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Symptom Groups
+.symptom-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.symptom-group {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.group-letter-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 10px var(--spacing-md);
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: var(--white);
+}
+
+.group-letter {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.group-count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.group-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.symptom-row {
+  padding: 10px var(--spacing-md);
+  border-bottom: 1px solid var(--light-gray);
+  transition: background-color 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: rgba(74, 144, 226, 0.03);
+  }
+}
+
+.symptom-name {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  text-transform: capitalize;
+  line-height: 1.4;
+}
+
+// Responsive
+@media (max-width: 640px) {
+  .all-symptoms-container {
+    padding: var(--spacing-md) 0 var(--spacing-xl);
+  }
+
+  .title-section h1 {
+    font-size: 1.4rem;
+  }
+}

@@ -1,0 +1,90 @@
+<div class="all-symptoms-container">
+  <div class="container-medium">
+    <!-- Header -->
+    <div class="page-header">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ "ALL_SYMPTOMS_BACK" | translate }}
+      </button>
+
+      <div class="title-section">
+        <h1>{{ "ALL_SYMPTOMS_TITLE" | translate }}</h1>
+        <p class="page-subtitle">{{ "ALL_SYMPTOMS_SUBTITLE" | translate }}</p>
+      </div>
+
+      <div class="stats-bar">
+        <span class="symptom-count-badge">
+          {{ "ALL_SYMPTOMS_COUNT" | translate : { count: filteredSymptoms.length } }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-input-container">
+        <div class="filter-icon">
+          <svg width="18" height="18" viewBox="0 0 20 20">
+            <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="m14.5 14.5 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <input
+          type="text"
+          class="filter-input"
+          [(ngModel)]="filterQuery"
+          (input)="onFilter()"
+          [placeholder]="'ALL_SYMPTOMS_SEARCH_PLACEHOLDER' | translate"
+          autocomplete="off"
+        />
+        <button
+          *ngIf="filterQuery"
+          type="button"
+          class="filter-clear"
+          (click)="filterQuery = ''; onFilter()"
+          aria-label="Clear filter"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M10 4L4 10M4 4l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Column Header (not needed for single-column) -->
+
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="loading-spinner"></div>
+      <p>{{ "LOADING_SYMPTOMS" | translate }}</p>
+    </div>
+
+    <!-- No Results -->
+    <div class="empty-state" *ngIf="!isLoading && filteredSymptoms.length === 0">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="22" stroke="#E1E8ED" stroke-width="2"/>
+        <path d="M16 24h16" stroke="#E1E8ED" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p>{{ "ALL_SYMPTOMS_NO_RESULTS" | translate }}</p>
+    </div>
+
+    <!-- Symptom Groups -->
+    <div class="symptom-groups" *ngIf="!isLoading && filteredSymptoms.length > 0">
+      <div class="symptom-group" *ngFor="let group of symptomGroups; trackBy: trackByLetter">
+        <div class="group-letter-header">
+          <span class="group-letter">{{ group.letter }}</span>
+          <span class="group-count">{{ group.symptoms.length }}</span>
+        </div>
+        <div class="group-items">
+          <div
+            class="symptom-row"
+            *ngFor="let symptom of group.symptoms; trackBy: trackBySymptomId"
+          >
+            <span class="symptom-name">{{ getCurrentLangName(symptom) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
