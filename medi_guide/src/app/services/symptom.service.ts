@@ -162,6 +162,16 @@ export class SymptomService {
     return this.translationsCache;
   }
 
+  getSymptomNameInLang(symptom: Symptom, lang: 'en' | 'sq'): string {
+    const key = symptom.translationKey || this.getTranslationKey(symptom.commonName);
+    const translation = this.translationsCache[lang]?.[key];
+    return (translation && typeof translation === 'string') ? translation : symptom.commonName;
+  }
+
+  getCachedSymptoms(): Symptom[] {
+    return [...this.symptomsCache];
+  }
+
   private diseaseNameToTranslationKey(diseaseName: string): string {
     return this.getTranslationKey(diseaseName);
   }

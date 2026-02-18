@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from './src/components/header/header.component';
 import { ResultsComponent } from './src/components/results/results.component';
 import { HospitalsComponent } from './src/components/hospitals/hospitals.component';
+import { AllSymptomsComponent } from './src/components/all-symptoms/all-symptoms.component';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -29,6 +30,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     HeaderComponent,
     ResultsComponent,
     HospitalsComponent,
+    AllSymptomsComponent,
     FormsModule,
     TranslateModule.forRoot({
       defaultLanguage: 'sq',
