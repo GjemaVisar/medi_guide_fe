@@ -8,11 +8,10 @@ import { Symptom, SymptomInput } from '../../../models/symptom.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-symptom-input',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
-  templateUrl: './symptom-input.component.html',
-  styleUrls: ['./symptom-input.component.scss'],
+    selector: 'app-symptom-input',
+    imports: [CommonModule, FormsModule, TranslateModule],
+    templateUrl: './symptom-input.component.html',
+    styleUrls: ['./symptom-input.component.scss']
 })
 export class SymptomInputComponent implements OnInit, OnDestroy {
   searchQuery = '';

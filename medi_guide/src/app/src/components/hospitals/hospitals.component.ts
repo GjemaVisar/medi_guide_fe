@@ -8,11 +8,10 @@ import { KosovoHospital } from '../../../models/symptom.model';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-hospitals',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
-  templateUrl: './hospitals.component.html',
-  styleUrls: ['./hospitals.component.scss'],
+    selector: 'app-hospitals',
+    imports: [CommonModule, FormsModule, TranslateModule],
+    templateUrl: './hospitals.component.html',
+    styleUrls: ['./hospitals.component.scss']
 })
 export class HospitalsComponent implements OnDestroy {
   kosovoCities: string[] = [];

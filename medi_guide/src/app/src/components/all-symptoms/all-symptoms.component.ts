@@ -13,11 +13,10 @@ interface SymptomGroup {
 }
 
 @Component({
-  selector: 'app-all-symptoms',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
-  templateUrl: './all-symptoms.component.html',
-  styleUrls: ['./all-symptoms.component.scss'],
+    selector: 'app-all-symptoms',
+    imports: [CommonModule, FormsModule, TranslateModule],
+    templateUrl: './all-symptoms.component.html',
+    styleUrls: ['./all-symptoms.component.scss']
 })
 export class AllSymptomsComponent implements OnInit, OnDestroy {
   allSymptoms: Symptom[] = [];

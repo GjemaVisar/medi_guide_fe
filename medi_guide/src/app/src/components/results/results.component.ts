@@ -10,11 +10,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 
 @Component({
-  selector: 'app-results',
-  standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
-  templateUrl: './results.component.html',
-  styleUrls: ['./results.component.scss']
+    selector: 'app-results',
+    imports: [CommonModule, FormsModule, TranslateModule],
+    templateUrl: './results.component.html',
+    styleUrls: ['./results.component.scss']
 })
 export class ResultsComponent implements OnInit, OnDestroy {
   conditions: Condition[] = [];

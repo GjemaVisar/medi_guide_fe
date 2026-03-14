@@ -4,11 +4,10 @@ import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-landing-page',
-  standalone: true,
-  imports: [CommonModule, TranslateModule],
-  templateUrl: './landing-page.component.html',
-  styleUrls: ['./landing-page.component.scss'],
+    selector: 'app-landing-page',
+    imports: [CommonModule, TranslateModule],
+    templateUrl: './landing-page.component.html',
+    styleUrls: ['./landing-page.component.scss']
 })
 export class LandingPageComponent {
   currentLang = 'sq';
