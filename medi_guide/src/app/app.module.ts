@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -19,30 +19,23 @@ export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
-@NgModule({
-  declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    LandingPageComponent,
-    SymptomInputComponent,
-    HeaderComponent,
-    ResultsComponent,
-    HospitalsComponent,
-    AllSymptomsComponent,
-    FormsModule,
-    TranslateModule.forRoot({
-      defaultLanguage: 'sq',
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
-    }),
-    HeaderComponent,
-  ],
-  providers: [],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [AppComponent],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        LandingPageComponent,
+        SymptomInputComponent,
+        HeaderComponent,
+        ResultsComponent,
+        HospitalsComponent,
+        AllSymptomsComponent,
+        FormsModule,
+        TranslateModule.forRoot({
+            defaultLanguage: 'sq',
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient],
+            },
+        }),
+        HeaderComponent], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {}
